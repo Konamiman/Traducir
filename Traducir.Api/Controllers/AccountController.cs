@@ -25,7 +25,7 @@ namespace Traducir.Api.Controllers
         private readonly IConfiguration _configuration;
         private readonly IUserService _userService;
         private readonly IAuthorizationService _authorizationService;
-        private readonly bool isDevelopmentEnvironment;
+        private readonly bool _isDevelopmentEnvironment;
 
         public AccountController(
             IConfiguration configuration,
@@ -38,13 +38,13 @@ namespace Traducir.Api.Controllers
             _configuration = configuration;
             _userService = userService;
             _authorizationService = authorizationService;
-            isDevelopmentEnvironment = hostingEnvironment.IsDevelopment();
+            _isDevelopmentEnvironment = hostingEnvironment.IsDevelopment();
         }
 
         [Route("app/impersonate")]
         public async Task<IActionResult> Impersonate(string returnUrl, int userId)
         {
-            if (!isDevelopmentEnvironment)
+            if (!_isDevelopmentEnvironment)
             {
                 return NotFound();
             }
@@ -60,7 +60,7 @@ namespace Traducir.Api.Controllers
         [Route("app/login")]
         public IActionResult LogIn(string returnUrl, string asUserType = null, bool asModerator = false)
         {
-            var state = isDevelopmentEnvironment ? $"{asUserType} {(asModerator ? "true" : null)} {returnUrl}" : returnUrl;
+            var state = _isDevelopmentEnvironment ? $"{asUserType} {(asModerator ? "true" : null)} {returnUrl}" : returnUrl;
 
             return Redirect(_seApiService.GetInitialOauthUrl(GetOauthReturnUrl(), state));
         }
@@ -77,7 +77,7 @@ namespace Traducir.Api.Controllers
         {
             string returnUrl, asUserType;
             bool asModerator;
-            if (isDevelopmentEnvironment && state != null)
+            if (_isDevelopmentEnvironment && state != null)
             {
                 var splitParts = state.Split(' ');
                 asUserType = splitParts[0].NullIfEmpty();
@@ -221,8 +221,7 @@ namespace Traducir.Api.Controllers
                 return BadRequest();
             }
 
-            var success = await _userService.ChangeUserTypeAsync(model.UserId, model.UserType, User.GetClaim<int>(ClaimType.Id))
-                ;
+            var success = await _userService.ChangeUserTypeAsync(model.UserId, model.UserType, User.GetClaim<int>(ClaimType.Id));
             if (!success)
             {
                 return BadRequest();

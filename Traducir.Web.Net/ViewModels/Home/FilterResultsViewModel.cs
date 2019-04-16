@@ -6,9 +6,7 @@ namespace Traducir.Web.Net.ViewModels.Home
 {
     public class FilterResultsViewModel
     {
-        private FilterResultsViewModel()
-        {
-        }
+        private FilterResultsViewModel() { }
 
         public FilterResultsViewModel(IEnumerable<SOString> strings, bool userCanManageIgnoring)
         {

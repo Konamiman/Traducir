@@ -21,11 +21,11 @@ namespace Traducir.Api.Services
 
     public class StringsService : IStringsService
     {
-        private readonly ISOStringService soStringService;
+        private readonly ISOStringService _soStringService;
 
         public StringsService(ISOStringService soStringService)
         {
-            this.soStringService = soStringService;
+            this._soStringService = soStringService;
         }
 
         public async Task<ImmutableArray<SOString>> Query(QueryViewModel model)
@@ -120,19 +120,19 @@ namespace Traducir.Api.Services
                 ComposePredicate(s => s.HasTranslation && regex.IsMatch(s.Translation));
             }
 
-            return await soStringService.GetStringsAsync(predicate);
+            return await _soStringService.GetStringsAsync(predicate);
         }
 
         public async Task<StringCountsViewModel> GetStringCounts()
         {
             return new StringCountsViewModel
             {
-                TotalStrings = await soStringService.CountStringsAsync(s => !s.IsIgnored),
-                WithoutTranslation = await soStringService.CountStringsAsync(s => !s.HasTranslation && !s.IsIgnored),
-                WithPendingSuggestions = await soStringService.CountStringsAsync(s => s.HasSuggestions && !s.IsIgnored),
-                WaitingApproval = await soStringService.CountStringsAsync(s => s.HasSuggestionsWaitingApproval && !s.IsIgnored),
-                WaitingReview = await soStringService.CountStringsAsync(s => s.HasApprovedSuggestionsWaitingReview && !s.IsIgnored),
-                UrgentStrings = await soStringService.CountStringsAsync(s => s.IsUrgent && !s.IsIgnored),
+                TotalStrings = await _soStringService.CountStringsAsync(s => !s.IsIgnored),
+                WithoutTranslation = await _soStringService.CountStringsAsync(s => !s.HasTranslation && !s.IsIgnored),
+                WithPendingSuggestions = await _soStringService.CountStringsAsync(s => s.HasSuggestions && !s.IsIgnored),
+                WaitingApproval = await _soStringService.CountStringsAsync(s => s.HasSuggestionsWaitingApproval && !s.IsIgnored),
+                WaitingReview = await _soStringService.CountStringsAsync(s => s.HasApprovedSuggestionsWaitingReview && !s.IsIgnored),
+                UrgentStrings = await _soStringService.CountStringsAsync(s => s.IsUrgent && !s.IsIgnored),
             };
         }
     }

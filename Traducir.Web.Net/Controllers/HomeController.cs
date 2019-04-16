@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Traducir.Api.Services;
 using Traducir.Core.Helpers;
 using Traducir.Web.Net.Models;
@@ -19,10 +18,10 @@ namespace Traducir.Web.Net.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly IStringsService stringsService;
-        private readonly IAuthorizationService authorizationService;
-        private readonly ISOStringService soStringsService;
-        private readonly IConfiguration configuration;
+        private readonly IStringsService _stringsService;
+        private readonly IAuthorizationService _authorizationService;
+        private readonly ISOStringService _soStringsService;
+        private readonly IConfiguration _configuration;
 
         public HomeController(
             IStringsService stringsService,
@@ -30,10 +29,10 @@ namespace Traducir.Web.Net.Controllers
             ISOStringService soStringsService,
             IConfiguration configuration)
         {
-            this.stringsService = stringsService;
-            this.authorizationService = authorizationService;
-            this.soStringsService = soStringsService;
-            this.configuration = configuration;
+            this._stringsService = stringsService;
+            this._authorizationService = authorizationService;
+            this._soStringsService = soStringsService;
+            this._configuration = configuration;
         }
 
         public Task<IActionResult> Index()
@@ -66,7 +65,7 @@ namespace Traducir.Web.Net.Controllers
 
             var viewModel = new IndexViewModel
             {
-                StringCounts = await stringsService.GetStringCounts(),
+                StringCounts = await _stringsService.GetStringCounts(),
                 StringsQuery = query,
                 FilterResults = filterResults,
                 UserCanSeeIgnoredAndPushStatus = User.GetClaim<UserType>(ClaimType.UserType) >= UserType.TrustedUser
@@ -95,7 +94,7 @@ namespace Traducir.Web.Net.Controllers
 
             try
             {
-                strings = await stringsService.Query(query);
+                strings = await _stringsService.Query(query);
             }
             catch (InvalidOperationException)
             {
@@ -104,7 +103,7 @@ namespace Traducir.Web.Net.Controllers
 
             return new FilterResultsViewModel(
                 strings,
-                userCanManageIgnoring: (await authorizationService.AuthorizeAsync(User, TraducirPolicy.CanReview)).Succeeded);
+                userCanManageIgnoring: (await _authorizationService.AuthorizeAsync(User, TraducirPolicy.CanReview)).Succeeded);
         }
 
         [HttpPut]
@@ -112,7 +111,7 @@ namespace Traducir.Web.Net.Controllers
         [Route("/manage-ignore")]
         public async Task<IActionResult> ManageIgnore([FromBody] ManageIgnoreViewModel model)
         {
-            var success = await soStringsService.ManageIgnoreAsync(
+            var success = await _soStringsService.ManageIgnoreAsync(
                 model.StringId,
                 model.Ignored,
                 User.GetClaim<int>(ClaimType.Id),
@@ -123,7 +122,7 @@ namespace Traducir.Web.Net.Controllers
                 return BadRequest();
             }
 
-            var str = await soStringsService.GetStringByIdAsync(model.StringId);
+            var str = await _soStringsService.GetStringByIdAsync(model.StringId);
             var summaryViewModel = new StringSummaryViewModel { String = str, RenderAsChanged = true, UserCanManageIgnoring = true };
             return PartialView("StringSummary", summaryViewModel);
         }
@@ -131,7 +130,7 @@ namespace Traducir.Web.Net.Controllers
         [Route("/string_edit_ui")]
         public async Task<IActionResult> GetStringEditUi(int stringId)
         {
-            var str = await soStringsService.GetStringByIdAsync(stringId);
+            var str = await _soStringsService.GetStringByIdAsync(stringId);
             if (str == null)
             {
                 return NotFound();
@@ -139,13 +138,13 @@ namespace Traducir.Web.Net.Controllers
 
             var viewModel = new EditStringViewModel
             {
-                SiteDomain = configuration.GetValue<string>("STACKAPP_SITEDOMAIN"),
-                TransifexPath = configuration.GetValue<string>("TRANSIFEX_LINK_PATH"),
+                SiteDomain = _configuration.GetValue<string>("STACKAPP_SITEDOMAIN"),
+                TransifexPath = _configuration.GetValue<string>("TRANSIFEX_LINK_PATH"),
                 String = str,
                 UserIsLoggedIn = User.GetClaim<string>(ClaimType.Name) != null,
                 UserId = User.GetClaim<int>(ClaimType.Id),
-                UserCanReview = (await authorizationService.AuthorizeAsync(User, TraducirPolicy.CanReview)).Succeeded,
-                UserCanSuggest = (await authorizationService.AuthorizeAsync(User, TraducirPolicy.CanSuggest)).Succeeded,
+                UserCanReview = (await _authorizationService.AuthorizeAsync(User, TraducirPolicy.CanReview)).Succeeded,
+                UserCanSuggest = (await _authorizationService.AuthorizeAsync(User, TraducirPolicy.CanSuggest)).Succeeded,
                 UserTypeIsTrustedUser = User.GetClaim<UserType>(ClaimType.UserType) == UserType.TrustedUser
             };
 
@@ -153,9 +152,7 @@ namespace Traducir.Web.Net.Controllers
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+        public IActionResult Error() =>
+            View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }

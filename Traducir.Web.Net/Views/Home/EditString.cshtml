@@ -65,75 +65,71 @@
 
 @if (Model.String.Suggestions?.Count() > 0)
 {
-<table class="table mt-2">
-    <thead>
-        <tr>
-            <th>Suggestion</th>
-            <th>Approved By</th>
-            <th>Created by</th>
-            <th />
-            <th />
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var suggestion in Model.String.Suggestions)
-        {
-        <tr class="@(suggestion.State == StringSuggestionState.ApprovedByTrustedUser ? "table-success" : null)">
-            <td><pre>@suggestion.Suggestion</pre></td>
-            <td>
-                @if (suggestion.LastStateUpdatedByName != null)
-                {
-                    <a
-                        href="https://@Model.SiteDomain/users/@suggestion.LastStateUpdatedById"
-                        target="_blank"
-                    >
-                        @suggestion.LastStateUpdatedByName
-                    </a>
-                }
-            </td>
-            <td>
-                <a
-                    href="https://@Model.SiteDomain/users/@suggestion.CreatedById"
-                    target="_blank"
-                >
-                    @suggestion.CreatedByName
-                </a>
-            </td>
-            <td>
-                @if(Model.CurrentUserSuggested(suggestion))
-                {
-                    <button type="button" class="btn btn-sm btn-danger">
-                        DELETE
-                    </button>
-                }
-            </td>
-            <td>
-                @if(Model.CurrentUserSuggested(suggestion))
-                {
-                    <button type="button" class="btn btn-sm btn-danger">
-                        REPLACE
-                    </button>
-                }
-            </td>
+    <table class="table mt-2">
+        <thead>
+            <tr>
+                <th>Suggestion</th>
+                <th>Approved By</th>
+                <th>Created by</th>
+                <th />
+                <th />
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var suggestion in Model.String.Suggestions)
+            {
+                <tr class="@(suggestion.State == StringSuggestionState.ApprovedByTrustedUser ? "table-success" : null)">
+                    <td><pre>@suggestion.Suggestion</pre></td>
+                    <td>
+                        @if (suggestion.LastStateUpdatedByName != null)
+                        {
+                            <a href="https://@Model.SiteDomain/users/@suggestion.LastStateUpdatedById"
+                               target="_blank">
+                                @suggestion.LastStateUpdatedByName
+                            </a>
+                        }
+                    </td>
+                    <td>
+                        <a href="https://@Model.SiteDomain/users/@suggestion.CreatedById"
+                           target="_blank">
+                            @suggestion.CreatedByName
+                        </a>
+                    </td>
+                    <td>
+                        @if (Model.CurrentUserSuggested(suggestion))
+                        {
+                            <button type="button" class="btn btn-sm btn-danger">
+                                DELETE
+                            </button>
+                        }
+                    </td>
+                    <td>
+                        @if (Model.CurrentUserSuggested(suggestion))
+                        {
+                            <button type="button" class="btn btn-sm btn-danger">
+                                REPLACE
+                            </button>
+                        }
+                    </td>
 
-            <td>
-                @if(Model.MustRenderSuggestionActionsFor(suggestion))
-                {
-                    <button type="button" class="btn btn-sm btn-success">
-                        <i class="fas fa-thumbs-up"></i>
-                    </button>
-                    <button type="button" class="btn btn-sm btn-danger">
-                        <i class="fas fa-thumbs-down"></i>
-                    </button>
-                }
-            </td>
-        </tr>
-        }
-    </tbody>
-</table>
+                    <td>
+                        @if (Model.MustRenderSuggestionActionsFor(suggestion))
+                        {
+                            <button type="button" class="btn btn-sm btn-success">
+                                <i class="fas fa-thumbs-up"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-danger">
+                                <i class="fas fa-thumbs-down"></i>
+                            </button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
 
-@if(Model.UserCanSuggest)
+@if (Model.UserCanSuggest)
 {
     <form>
         <div class="row">
@@ -147,19 +143,15 @@
         <div>
             <div class="mt-1">
                 <div class="btn-group" role="group">
-                    <button
-                        type="button"
-                        class="btn btn-primary float-left"
-                    >
+                    <button type="button"
+                            class="btn btn-primary float-left">
                         Send new suggestion
                     </button>
-                    @if(Model.UserCanReview)
+                    @if (Model.UserCanReview)
                     {
-                        <button
-                            type="button"
-                            class="btn btn-warning float-left"
-                            onClick={this.postApprovedSuggestion}
-                        >
+                        <button type="button"
+                                class="btn btn-warning float-left"
+                                onClick={this.postApprovedSuggestion}>
                             Send final translation
                         </button>
                     }

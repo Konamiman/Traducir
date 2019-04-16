@@ -26,7 +26,7 @@ namespace Traducir.Web.Net.ViewModels.Home
 
         public bool MustRenderSuggestionActionsFor(SOStringSuggestion suggestion)
         {
-            if(!UserIsLoggedIn || !UserCanReview)
+            if (!UserIsLoggedIn || !UserCanReview)
             {
                 return false;
             }
